@@ -1,4 +1,5 @@
-﻿using BBsBaskets.Models;
+﻿using BBsBaskets.Data;
+using BBsBaskets.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 
@@ -7,15 +8,18 @@ namespace BBsBaskets.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
+        private readonly BBsBasketsDbContext _db;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(BBsBasketsDbContext db, ILogger<HomeController> logger)
         {
+            _db = db;
             _logger = logger;
         }
 
         public IActionResult Index()
         {
-            return View();
+            IEnumerable<Product> objProductList = _db.Products;
+            return View(objProductList);
         }
 
         public IActionResult Privacy()
