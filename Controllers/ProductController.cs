@@ -8,10 +8,12 @@ namespace BBsBaskets.Controllers
     public class ProductController : Controller
     {
         private readonly BBsBasketsDbContext _db;
+        private readonly IWebHostEnvironment _webHostEnvironment;
 
-        public ProductController(BBsBasketsDbContext db)
+        public ProductController(BBsBasketsDbContext db, IWebHostEnvironment webHostEnvironment)
         {
             _db = db;
+            _webHostEnvironment = webHostEnvironment;
         }
         public IActionResult Index()
         {
@@ -25,10 +27,29 @@ namespace BBsBaskets.Controllers
             return View();
         }
 
+        //GET
+        public IActionResult Details(int? id)
+        {
+            if (id == null || id == 0)
+            {
+                return NotFound();
+            }
+            var productFromDb = _db.Products.Find(id);
+            //var productFromDbFirst = _db.Products.FirstOrDefault(x => x.Id == id);
+            //var productFromDbSingle = _db.Products.SingleOrDefault(x => x.Id == id);
+
+            if (productFromDb == null)
+            {
+                return NotFound();
+            }
+
+            return View(productFromDb);
+        }
+
         //POST
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create(Product obj)
+        public IActionResult Create(Product obj, IFormFile? file)
         {
             if (obj.Name == obj.Price.ToString())
             {
@@ -36,6 +57,20 @@ namespace BBsBaskets.Controllers
             }
             if (ModelState.IsValid)
             {
+                string wwwRootPath = _webHostEnvironment.WebRootPath;
+                if(file != null)
+                {
+                    string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+                    string imagePath = Path.Combine(wwwRootPath, @"images");
+
+                    using (var fileStream = new FileStream(Path.Combine(imagePath, fileName), FileMode.Create))
+                    {
+                        file.CopyTo(fileStream);
+                    }
+
+                    obj.ImageURL = @"\images\" + fileName;
+                }
+
                 _db.Products.Add(obj);
                 _db.SaveChanges();
                 TempData["success"] = "Product added successfully";

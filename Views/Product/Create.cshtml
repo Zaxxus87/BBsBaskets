@@ -1,6 +1,6 @@
 ﻿@model Product
 
-<form method="post">
+<form method="post" enctype="multipart/form-data">
     <div class="border p-3 mt-4">
         <div class="row pb-2">
             <h2 class="text-primary">Create Product</h2>
@@ -17,6 +17,11 @@
             <input asp-for="Price" class="form-control" />
             <span asp-validation-for="Price" class="text-danger"></span>
         </div>
+        <div class="mb-3">
+            <label asp-for="ImageURL" class="mas-2">Choose Image</label>
+            <input type="file" name="file" class="form-control" />   
+        </div>
+
         <button type="submit" class="btn btn-primary" style="width:150px">Create</button>
         <a asp-controller="Product" asp-action="Index" class="btn btn-secondary" style="width:150px">
             Back to List
